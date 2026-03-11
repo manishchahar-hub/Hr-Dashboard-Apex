@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RecruitIQ — Intelligent Resume Screening</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface2: #1a1a26;
+      --border: #2a2a3d;
+      --accent: #6c63ff;
+      --accent2: #ff6584;
+      --accent3: #43e97b;
+      --accent4: #ffd166;
+      --text: #e8e8f0;
+      --text-muted: #888899;
+      --text-dim: #555566;
+      --danger: #ff4757;
+      --warning: #ffd166;
+      --success: #43e97b;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--surface); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* Layout */
+    .app { display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 0;
+      position: fixed;
+      height: 100vh;
+      z-index: 100;
+    }
+
+    .logo {
+      padding: 0 24px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--text);
+      letter-spacing: -0.5px;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .nav { padding: 16px 12px; flex: 1; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.15s;
+      margin-bottom: 2px;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover { color: var(--text); background: var(--surface2); }
+    .nav-item.active { color: var(--accent); background: rgba(108, 99, 255, 0.12); }
+    .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--accent);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+
+    /* Main content */
+    .main {
+      margin-left: 240px;
+      flex: 1;
+      min-height: 100vh;
+    }
+
+    /* Topbar */
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .page-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 24px;
+      letter-spacing: -0.5px;
+    }
+
+    .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+    /* Buttons */
+    .btn {
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      font-family: 'Outfit', sans-serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: #7c75ff; transform: translateY(-1px); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { color: var(--text); border-color: var(--text-muted); }
+
+    .btn-danger { background: rgba(255,71,87,0.15); color: var(--danger); border: 1px solid rgba(255,71,87,0.3); }
+    .btn-success { background: rgba(67,233,123,0.12); color: var(--success); border: 1px solid rgba(67,233,123,0.3); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    /* Page content */
+    .page { padding: 32px; }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .card-sm { padding: 16px; }
+
+    /* Stats row */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+
+    .stat-card.purple::before { background: var(--accent); }
+    .stat-card.pink::before { background: var(--accent2); }
+    .stat-card.green::before { background: var(--accent3); }
+    .stat-card.yellow::before { background: var(--accent4); }
+
+    .stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    .stat-value { font-family: 'DM Serif Display', serif; font-size: 32px; margin: 6px 0 2px; }
+    .stat-change { font-size: 12px; color: var(--text-muted); }
+    .stat-change.up { color: var(--success); }
+    .stat-change.down { color: var(--danger); }
+
+    /* Section headers */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+    }
+
+    /* Grid layouts */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    /* Upload zone */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 48px 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: rgba(108, 99, 255, 0.02);
+    }
+
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--accent);
+      background: rgba(108, 99, 255, 0.06);
+    }
+
+    .upload-icon { font-size: 40px; margin-bottom: 12px; }
+    .upload-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .upload-sub { color: var(--text-muted); font-size: 13px; }
+
+    /* Tags / Pills */
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .tag-purple { background: rgba(108,99,255,0.15); color: var(--accent); }
+    .tag-pink { background: rgba(255,101,132,0.15); color: var(--accent2); }
+    .tag-green { background: rgba(67,233,123,0.15); color: var(--success); }
+    .tag-yellow { background: rgba(255,209,102,0.15); color: var(--warning); }
+    .tag-red { background: rgba(255,71,87,0.15); color: var(--danger); }
+    .tag-gray { background: rgba(136,136,153,0.15); color: var(--text-muted); }
+
+    /* Score bar */
+    .score-bar-wrap { margin: 8px 0; }
+    .score-bar-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; color: var(--text-muted); }
+    .score-bar-label span:last-child { font-weight: 600; color: var(--text); font-family: 'IBM Plex Mono', monospace; }
+    .score-bar-bg { background: var(--surface2); border-radius: 4px; height: 6px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 4px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    /* Candidate card */
+    .candidate-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.2s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .candidate-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(108,99,255,0.15);
+    }
+
+    .candidate-card.selected {
+      border-color: var(--accent);
+      background: rgba(108, 99, 255, 0.05);
+    }
+
+    .candidate-rank {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .candidate-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .candidate-name { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+    .candidate-role { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
+
+    .candidate-score-big {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      margin-bottom: 4px;
+    }
+
+    /* Bias indicators */
+    .bias-panel {
+      background: rgba(255, 71, 87, 0.05);
+      border: 1px solid rgba(255, 71, 87, 0.2);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .bias-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,71,87,0.1);
+    }
+
+    .bias-item:last-child { border-bottom: none; }
+
+    .bias-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .bias-dot.high { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+    .bias-dot.med { background: var(--warning); box-shadow: 0 0 6px var(--warning); }
+    .bias-dot.low { background: var(--success); }
+
+    /* Table */
+    .table { width: 100%; border-collapse: collapse; }
+    .table th {
+      text-align: left;
+      padding: 10px 16px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+    }
+    .table td {
+      padding: 14px 16px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(42,42,61,0.5);
+    }
+    .table tr:last-child td { border-bottom: none; }
+    .table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* Progress ring */
+    .ring-wrap { position: relative; display: inline-block; }
+    .ring-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .ring-val { font-family: 'DM Serif Display', serif; font-size: 22px; }
+    .ring-sub { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Input */
+    .input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .input:focus { border-color: var(--accent); }
+    .input::placeholder { color: var(--text-dim); }
+
+    .textarea { resize: vertical; min-height: 100px; }
+
+    .label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-group { margin-bottom: 20px; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      margin-bottom: -1px;
+      font-family: 'Outfit', sans-serif;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* Modal overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.15s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      width: 680px;
+      max-width: 95vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.2s ease;
+    }
+
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .modal-title { font-family: 'DM Serif Display', serif; font-size: 22px; }
+    .modal-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 20px; padding: 4px; }
+    .modal-close:hover { color: var(--text); }
+
+    /* Skill chips */
+    .skills-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .skill-chip {
+      padding: 4px 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--text-muted);
+    }
+    .skill-chip.match {
+      background: rgba(67,233,123,0.1);
+      border-color: rgba(67,233,123,0.3);
+      color: var(--success);
+    }
+    .skill-chip.missing {
+      background: rgba(255,71,87,0.1);
+      border-color: rgba(255,71,87,0.3);
+      color: var(--danger);
+    }
+
+    /* Loading spinner */
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Processing overlay */
+    .processing-card {
+      background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(255,101,132,0.1));
+      border: 1px solid rgba(108,99,255,0.3);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .processing-title { font-family: 'DM Serif Display', serif; font-size: 20px; margin: 12px 0 6px; }
+    .processing-sub { color: var(--text-muted); font-size: 14px; }
+
+    /* Fairness meter */
+    .fairness-gauge {
+      background: var(--surface2);
+      border-radius: 8px;
+      height: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .fairness-segments {
+      position: absolute;
+      inset: 0;
+      display: flex;
+    }
+
+    /* Anonymous toggle */
+    .toggle-wrap { display: flex; align-items: center; gap: 10px; }
+    .toggle {
+      width: 44px; height: 24px;
+      background: var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+      border: none;
+    }
+    .toggle.on { background: var(--accent); }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle.on::after { transform: translateX(20px); }
+    .toggle-label { font-size: 13px; font-weight: 500; }
+
+    /* Explainability section */
+    .explain-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .explain-item:last-child { border-bottom: none; }
+    .explain-icon { font-size: 16px; margin-top: 1px; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 32px;
+      color: var(--text-muted);
+    }
+    .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--text); margin-bottom: 8px; }
+    .empty-state-sub { font-size: 14px; }
+
+    /* Monospace values */
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+
+    /* flex utils */
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-8 { gap: 8px; }
+    .gap-12 { gap: 12px; }
+    .gap-16 { gap: 16px; }
+    .mt-4 { margin-top: 4px; }
+    .mt-8 { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+    .mb-8 { margin-bottom: 8px; }
+    .mb-16 { margin-bottom: 16px; }
+    .mb-24 { margin-bottom: 24px; }
+    .text-muted { color: var(--text-muted); }
+    .text-sm { font-size: 13px; }
+    .text-xs { font-size: 11px; }
+    .font-mono { font-family: 'IBM Plex Mono', monospace; }
+    .w-full { width: 100%; }
+
+    /* Animated entry */
+    .fade-in {
+      animation: fadeIn 0.3s ease;
+    }
+
+    /* Chart bars */
+    .bar-chart { display: flex; gap: 8px; align-items: flex-end; height: 80px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bar { width: 100%; border-radius: 4px 4px 0 0; transition: height 0.5s ease; min-width: 20px; }
+    .bar-label { font-size: 10px; color: var(--text-muted); text-align: center; }
+    .bar-val { font-size: 10px; font-family: 'IBM Plex Mono', monospace; color: var(--text-muted); }
+
+    /* Notification dot */
+    .notif-dot {
+      width: 6px; height: 6px;
+      background: var(--accent2);
+      border-radius: 50%;
+      display: inline-block;
+      margin-left: 6px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* Divider */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+    /* Interview Q */
+    .interview-q {
+      background: var(--surface2);
+      border-left: 3px solid var(--accent);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .interview-q-type {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    @media (max-width: 1200px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    // ──────────────────────────────────────────────
+    // MOCK DATA
+    // ──────────────────────────────────────────────
+    const MOCK_CANDIDATES = [
+      {
+        id: 1, name: "Priya Sharma", initials: "PS", color: "#6c63ff",
+        role: "Senior Full-Stack Developer", experience: "5 years",
+        education: "B.Tech CSE, IIT Delhi", location: "Bangalore",
+        email: "priya.s@email.com",
+        skills: ["React", "Node.js", "TypeScript", "PostgreSQL", "Docker", "AWS"],
+        matchScore: 94, technicalScore: 91, experienceScore: 96, educationScore: 88,
+        status: "shortlisted",
+        biasFlags: [],
+        summary: "Strong full-stack profile with excellent React + Node.js experience. Led 3 major product launches.",
+        interviewQs: ["Describe your experience with microservices architecture.", "How do you handle state management in large React apps?", "Walk me through a challenging technical decision you made."],
+        anonymized: false,
+        genderDetected: "Female", ageEstimate: "27-32", nameOrigin: "South Asian",
+      },
+      {
+        id: 2, name: "Rahul Verma", initials: "RV", color: "#ff6584",
+        role: "Full-Stack Developer", experience: "4 years",
+        education: "B.E. CS, BITS Pilani", location: "Mumbai",
+        email: "rahul.v@email.com",
+        skills: ["React", "Python", "Django", "MySQL", "Redis"],
+        matchScore: 87, technicalScore: 85, experienceScore: 83, educationScore: 90,
+        status: "review",
+        biasFlags: [{ type: "med", label: "Gender cue in email prefix", detail: "Email suggests male gender — verify blind screening" }],
+        summary: "Solid backend experience, slightly weaker frontend. Strong academic profile from BITS.",
+        interviewQs: ["How do you optimize slow database queries?", "Describe your experience with RESTful API design.", "What's your approach to code review?"],
+        anonymized: false,
+        genderDetected: "Male", ageEstimate: "25-29", nameOrigin: "North Indian",
+      },
+      {
+        id: 3, name: "Sarah Chen", initials: "SC", color: "#43e97b",
+        role: "Full-Stack Engineer", experience: "6 years",
+        education: "MS CS, Stanford University", location: "Remote",
+        email: "sarah.chen@email.com",
+        skills: ["React", "TypeScript", "Go", "Kubernetes", "GraphQL", "AWS", "PostgreSQL"],
+        matchScore: 96, technicalScore: 97, experienceScore: 94, educationScore: 99,
+        status: "shortlisted",
+        biasFlags: [{ type: "low", label: "Prestigious university detected", detail: "Stanford prestige may introduce institutional bias" }],
+        summary: "Exceptional profile. MS from Stanford, strong system design background, 6 years industry experience.",
+        interviewQs: ["Design a distributed rate limiter.", "How would you architect a real-time notification system?", "Describe a system you built from scratch."],
+        anonymized: false,
+        genderDetected: "Female", ageEstimate: "28-33", nameOrigin: "East Asian",
+      },
+      {
+        id: 4, name: "Arjun Nair", initials: "AN", color: "#ffd166",
+        role: "Software Developer", experience: "2 years",
+        education: "B.Tech IT, NIT Calicut", location: "Hyderabad",
+        email: "arjun.n@email.com",
+        skills: ["React", "Node.js", "MongoDB"],
+        matchScore: 62, technicalScore: 68, experienceScore: 55, educationScore: 70,
+        status: "pending",
+        biasFlags: [{ type: "med", label: "Under-represented region detected", detail: "Candidate from Tier-2 city — ensure location doesn't bias" }],
+        summary: "Junior profile with 2 years experience. Good foundational skills but limited scale exposure.",
+        interviewQs: ["Walk me through a project you're proud of.", "How do you handle merge conflicts in Git?", "What's your experience with agile methodologies?"],
+        anonymized: false,
+        genderDetected: "Male", ageEstimate: "23-26", nameOrigin: "South Indian",
+      },
+      {
+        id: 5, name: "Meera Pillai", initials: "MP", color: "#a29bfe",
+        role: "Senior Software Engineer", experience: "7 years",
+        education: "B.Tech ECE, VIT Vellore", location: "Chennai",
+        email: "meera.p@email.com",
+        skills: ["Java", "Spring Boot", "React", "Kafka", "AWS", "PostgreSQL", "Docker"],
+        matchScore: 89, technicalScore: 92, experienceScore: 95, educationScore: 78,
+        status: "shortlisted",
+        biasFlags: [{ type: "high", label: "Career gap detected (2021–2022)", detail: "12-month gap flagged — could indicate bias against caregiving breaks" }],
+        summary: "Strong backend + Java expertise, 7 years experience, career gap in 2021 noted. High technical scores.",
+        interviewQs: ["Tell me about your return to work after 2022.", "How do you design highly scalable event-driven systems?", "What's your experience with Kafka?"],
+        anonymized: false,
+        genderDetected: "Female", ageEstimate: "31-36", nameOrigin: "South Indian",
+      },
+      {
+        id: 6, name: "David Okonkwo", initials: "DO", color: "#fd79a8",
+        role: "Full-Stack Developer", experience: "4 years",
+        education: "B.Sc. CS, University of Lagos", location: "Remote",
+        email: "david.o@email.com",
+        skills: ["Vue.js", "Node.js", "Python", "FastAPI", "PostgreSQL"],
+        matchScore: 74, technicalScore: 76, experienceScore: 78, educationScore: 65,
+        status: "review",
+        biasFlags: [
+          { type: "high", label: "International institution — potential bias risk", detail: "Non-Indian university may face evaluation bias in shortlisting" },
+          { type: "med", label: "Non-preferred framework (Vue vs React)", detail: "Vue experience penalized though transferable skills apply" }
+        ],
+        summary: "Good developer with international background. Vue.js primary — React skills inferred from similar framework.",
+        interviewQs: ["How quickly can you adapt from Vue to React?", "Describe your remote work setup and communication style.", "What's your experience with API design?"],
+        anonymized: false,
+        genderDetected: "Male", ageEstimate: "26-31", nameOrigin: "African",
+      },
+    ];
+
+    const JOB_DESC_SAMPLE = `Senior Full-Stack Developer — FinTech Product Team
+
+We're looking for a Senior Full-Stack Developer to join our core product team building next-gen payment infrastructure.
+
+Requirements:
+• 4+ years of experience in full-stack development
+• Proficiency in React, TypeScript, and Node.js
+• Experience with PostgreSQL, Redis, or similar databases
+• Knowledge of cloud platforms (AWS preferred)
+• Experience with Docker/Kubernetes
+• Strong understanding of REST/GraphQL APIs
+• Excellent communication and code review skills
+
+Nice to have:
+• Experience with microservices architecture
+• Open source contributions
+• Startup experience`;
+
+    const avatarColors = ["#6c63ff","#ff6584","#43e97b","#ffd166","#a29bfe","#fd79a8","#74b9ff","#55efc4"];
+
+    // ──────────────────────────────────────────────
+    // UTILS
+    // ──────────────────────────────────────────────
+    function ScoreBar({ label, value, color = "#6c63ff" }) {
+      const [width, setWidth] = useState(0);
+      useEffect(() => { setTimeout(() => setWidth(value), 100); }, [value]);
+      return (
+        <div className="score-bar-wrap">
+          <div className="score-bar-label">
+            <span>{label}</span>
+            <span>{value}%</span>
+          </div>
+          <div className="score-bar-bg">
+            <div className="score-bar-fill" style={{ width: width + '%', background: color }} />
+          </div>
+        </div>
+      );
+    }
+
+    function ScoreRing({ value, size = 90, color = "#6c63ff", label = "Score" }) {
+      const r = (size - 10) / 2;
+      const circ = 2 * Math.PI * r;
+      const [dash, setDash] = useState(circ);
+      useEffect(() => { setTimeout(() => setDash(circ - (value / 100) * circ), 100); }, [value]);
+      return (
+        <div className="ring-wrap" style={{ width: size, height: size }}>
+          <svg width={size} height={size}>
+            <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--surface2)" strokeWidth={8} />
+            <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={8}
+              strokeDasharray={circ} strokeDashoffset={dash}
+              strokeLinecap="round"
+              transform={`rotate(-90 ${size/2} ${size/2})`}
+              style={{ transition: 'stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1)' }}
+            />
+          </svg>
+          <div className="ring-label">
+            <span className="ring-val" style={{ color }}>{value}</span>
+            <span className="ring-sub">{label}</span>
+          </div>
+        </div>
+      );
+    }
+
+    function BiasFlag({ flag }) {
+      const colors = { high: 'red', med: 'yellow', low: 'green' };
+      const icons = { high: '⚠️', med: '🔶', low: '🟡' };
+      return (
+        <div className="bias-item">
+          <div className={`bias-dot ${flag.type}`} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{flag.label}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{flag.detail}</div>
+          </div>
+          <span className={`tag tag-${colors[flag.type]}`}>{flag.type === 'high' ? 'HIGH' : flag.type === 'med' ? 'MED' : 'LOW'}</span>
+        </div>
+      );
+    }
+
+    // ──────────────────────────────────────────────
+    // CANDIDATE DETAIL MODAL
+    // ──────────────────────────────────────────────
+    function CandidateModal({ candidate, onClose, onAnonymize, jdSkills }) {
+      const [tab, setTab] = useState('overview');
+      const [loading, setLoading] = useState(false);
+      const [aiInsight, setAiInsight] = useState('');
+      const [generating, setGenerating] = useState(false);
+
+      const reqSkills = jdSkills || ["React", "TypeScript", "Node.js", "PostgreSQL", "AWS", "Docker"];
+      const matchedSkills = candidate.skills.filter(s => reqSkills.includes(s));
+      const missingSkills = reqSkills.filter(s => !candidate.skills.includes(s));
+      const extraSkills = candidate.skills.filter(s => !reqSkills.includes(s));
+
+      const generateAI = async () => {
+        setGenerating(true);
+        setAiInsight('');
+        try {
+          const resp = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "claude-sonnet-4-20250514",
+              max_tokens: 1000,
+              messages: [{
+                role: "user",
+                content: `You are an expert hiring consultant. Analyze this candidate for the role and give a brief 3-paragraph assessment. Be specific, actionable, and unbiased.
+
+Candidate: ${candidate.name}
+Role: ${candidate.role}
+Experience: ${candidate.experience}
+Education: ${candidate.education}
+Skills: ${candidate.skills.join(', ')}
+Match Score: ${candidate.matchScore}%
+Career gaps: ${candidate.biasFlags.find(f => f.label.includes('gap')) ? 'Yes, 2021-2022' : 'None detected'}
+Summary: ${candidate.summary}
+
+Job requires: React, TypeScript, Node.js, PostgreSQL, AWS, Docker — Senior Full-Stack Developer for FinTech
+
+Give:
+1. Strengths (2-3 sentences)
+2. Potential concerns (1-2 sentences, be fair and avoid bias)
+3. Hiring recommendation (clear yes/maybe/no with rationale)`
+              }]
+            })
+          });
+          const data = await resp.json();
+          setAiInsight(data.content[0].text);
+        } catch (e) {
+          setAiInsight("AI analysis unavailable. Based on scores: this candidate shows " + 
+            (candidate.matchScore > 85 ? "strong alignment" : candidate.matchScore > 70 ? "good potential" : "partial fit") + " with role requirements.");
+        }
+        setGenerating(false);
+      };
+
+      return (
+        <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+          <div className="modal fade-in">
+            <div className="modal-header">
+              <div className="flex items-center gap-12">
+                <div className="candidate-avatar" style={{ background: candidate.color + '22', color: candidate.color }}>
+                  {candidate.anonymized ? '??' : candidate.initials}
+                </div>
+                <div>
+                  <div className="modal-title">{candidate.anonymized ? 'Candidate #' + candidate.id : candidate.name}</div>
+                  <div className="text-muted text-sm">{candidate.role} · {candidate.experience}</div>
+                </div>
+              </div>
+              <button className="modal-close" onClick={onClose}>✕</button>
+            </div>
+
+            <div className="tabs">
+              {['overview','skills','bias','interview','ai'].map(t => (
+                <button key={t} className={`tab ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>
+                  {t === 'ai' ? '✨ AI Analysis' : t.charAt(0).toUpperCase() + t.slice(1)}
+                </button>
+              ))}
+            </div>
+
+            {tab === 'overview' && (
+              <div className="fade-in">
+                <div className="grid-3" style={{ marginBottom: 24 }}>
+                  <ScoreRing value={candidate.matchScore} size={90} color="#6c63ff" label="Match" />
+                  <ScoreRing value={candidate.technicalScore} size={90} color="#43e97b" label="Technical" />
+                  <ScoreRing value={candidate.experienceScore} size={90} color="#ffd166" label="Experience" />
+                </div>
+
+                <div className="card card-sm mb-16">
+                  <div className="label mb-8">AI Summary</div>
+                  <p style={{ fontSize: 14, lineHeight: 1.6 }}>{candidate.summary}</p>
+                </div>
+
+                <div className="grid-2">
+                  <div>
+                    <div className="label mb-8">Profile Details</div>
+                    {[
+                      ['🎓', 'Education', candidate.education],
+                      ['📍', 'Location', candidate.location],
+                      ['💼', 'Experience', candidate.experience],
+                      ['📧', 'Contact', candidate.anonymized ? '—hidden—' : candidate.email],
+                    ].map(([icon, key, val]) => (
+                      <div key={key} className="explain-item">
+                        <span className="explain-icon">{icon}</span>
+                        <span className="text-muted text-sm" style={{ width: 90 }}>{key}</span>
+                        <span style={{ fontSize: 13 }}>{val}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <div className="label mb-8">Score Breakdown</div>
+                    <ScoreBar label="Technical" value={candidate.technicalScore} color="#43e97b" />
+                    <ScoreBar label="Experience" value={candidate.experienceScore} color="#ffd166" />
+                    <ScoreBar label="Education" value={candidate.educationScore} color="#a29bfe" />
+                    <ScoreBar label="Overall Match" value={candidate.matchScore} color="#6c63ff" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {tab === 'skills' && (
+              <div className="fade-in">
+                <div className="form-group">
+                  <div className="label">✅ Matched Required Skills ({matchedSkills.length}/{reqSkills.length})</div>
+                  <div className="skills-wrap">
+                    {matchedSkills.map(s => <span key={s} className="skill-chip match">✓ {s}</span>)}
+                  </div>
+                </div>
+                <div className="form-group">
+                  <div className="label">❌ Missing Required Skills</div>
+                  <div className="skills-wrap">
+                    {missingSkills.length === 0
+                      ? <span className="text-muted text-sm">None — all required skills present!</span>
+                      : missingSkills.map(s => <span key={s} className="skill-chip missing">✗ {s}</span>)
+                    }
+                  </div>
+                </div>
+                <div className="form-group">
+                  <div className="label">➕ Additional Skills</div>
+                  <div className="skills-wrap">
+                    {extraSkills.map(s => <span key={s} className="skill-chip">{s}</span>)}
+                  </div>
+                </div>
+
+                <div className="card card-sm" style={{ background: 'rgba(108,99,255,0.05)', border: '1px solid rgba(108,99,255,0.2)' }}>
+                  <div className="flex items-center justify-between">
+                    <span style={{ fontSize: 14 }}>Skills compatibility score</span>
+                    <span className="mono" style={{ color: 'var(--accent)', fontSize: 18, fontWeight: 700 }}>
+                      {Math.round((matchedSkills.length / reqSkills.length) * 100)}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {tab === 'bias' && (
+              <div className="fade-in">
+                <div className="toggle-wrap mb-16">
+                  <button className={`toggle ${candidate.anonymized ? 'on' : ''}`} onClick={() => onAnonymize(candidate.id)} />
+                  <span className="toggle-label">Anonymized screening mode</span>
+                  {candidate.anonymized && <span className="tag tag-purple">Active</span>}
+                </div>
+
+                {candidate.anonymized && (
+                  <div className="card card-sm mb-16" style={{ background: 'rgba(108,99,255,0.05)', border: '1px solid rgba(108,99,255,0.2)' }}>
+                    <p style={{ fontSize: 13 }}>🔒 Name, email, and demographic cues hidden. Evaluation based on skills and experience only.</p>
+                  </div>
+                )}
+
+                <div className="label mb-8">Demographic Detection (for bias monitoring only)</div>
+                <div className="card card-sm mb-16">
+                  {[
+                    ['Inferred Gender', candidate.genderDetected],
+                    ['Estimated Age Range', candidate.ageEstimate],
+                    ['Name Origin / Ethnicity cue', candidate.nameOrigin],
+                  ].map(([k, v]) => (
+                    <div key={k} className="explain-item">
+                      <span className="text-muted text-sm" style={{ width: 200 }}>{k}</span>
+                      <span style={{ fontSize: 13 }}>{candidate.anonymized ? '—hidden—' : v}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="label mb-8">Bias Flags</div>
+                {candidate.biasFlags.length === 0 ? (
+                  <div className="card card-sm" style={{ background: 'rgba(67,233,123,0.05)', border: '1px solid rgba(67,233,123,0.2)' }}>
+                    <div className="flex items-center gap-8">
+                      <span style={{ fontSize: 20 }}>✅</span>
+                      <span style={{ fontSize: 14 }}>No bias indicators detected for this candidate.</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bias-panel">
+                    {candidate.biasFlags.map((f, i) => <BiasFlag key={i} flag={f} />)}
+                  </div>
+                )}
+
+                <div className="mt-16 card card-sm">
+                  <div className="label mb-8">Fairness Recommendation</div>
+                  <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--text-muted)' }}>
+                    {candidate.biasFlags.filter(f => f.type === 'high').length > 0
+                      ? "⚠️ High-risk bias indicators present. Recommend anonymized review before shortlisting decision."
+                      : candidate.biasFlags.length > 0
+                      ? "🔶 Minor bias cues detected. Review with awareness. Enable anonymized mode for cleaner evaluation."
+                      : "✅ Clean profile — no significant bias indicators. Proceed with standard evaluation process."}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {tab === 'interview' && (
+              <div className="fade-in">
+                <div className="label mb-12">AI-Generated Interview Questions</div>
+                <p className="text-muted text-sm mb-16">Questions tailored to candidate's profile and role requirements.</p>
+                {candidate.interviewQs.map((q, i) => (
+                  <div key={i} className="interview-q">
+                    <div className="interview-q-type">Q{i+1} · {i === 0 ? 'Technical' : i === 1 ? 'Design' : 'Behavioral'}</div>
+                    {q}
+                  </div>
+                ))}
+                <button className="btn btn-outline mt-16 btn-sm">
+                  + Generate More Questions
+                </button>
+              </div>
+            )}
+
+            {tab === 'ai' && (
+              <div className="fade-in">
+                {!aiInsight && !generating && (
+                  <div className="processing-card">
+                    <div style={{ fontSize: 40 }}>🤖</div>
+                    <div className="processing-title">Deep Candidate Analysis</div>
+                    <div className="processing-sub">Get AI-powered hiring insights powered by Claude</div>
+                    <button className="btn btn-primary mt-16" onClick={generateAI}>
+                      ✨ Generate Analysis
+                    </button>
+                  </div>
+                )}
+                {generating && (
+                  <div className="processing-card">
+                    <div className="spinner" style={{ width: 32, height: 32, borderWidth: 3 }} />
+                    <div className="processing-title mt-12">Analyzing candidate...</div>
+                    <div className="processing-sub">Claude is evaluating skills, experience, and fit</div>
+                  </div>
+                )}
+                {aiInsight && (
+                  <div>
+                    <div className="card" style={{ background: 'rgba(108,99,255,0.05)', border: '1px solid rgba(108,99,255,0.2)' }}>
+                      <div className="flex items-center gap-8 mb-16">
+                        <span style={{ fontSize: 20 }}>✨</span>
+                        <div className="label" style={{ margin: 0 }}>Claude Analysis</div>
+                        <span className="tag tag-purple">AI-Powered</span>
+                      </div>
+                      <div style={{ fontSize: 14, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{aiInsight}</div>
+                    </div>
+                    <button className="btn btn-outline mt-12 btn-sm" onClick={generateAI}>
+                      🔄 Regenerate
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // ──────────────────────────────────────────────
+    // UPLOAD PAGE
+    // ──────────────────────────────────────────────
+    function UploadPage({ onProcess }) {
+      const [jd, setJd] = useState(JOB_DESC_SAMPLE);
+      const [dragOver, setDragOver] = useState(false);
+      const [files, setFiles] = useState([]);
+      const [processing, setProcessing] = useState(false);
+      const [progress, setProgress] = useState(0);
+
+      const handleProcess = async () => {
+        if (!jd.trim()) return alert("Please enter a job description.");
+        setProcessing(true);
+        for (let i = 0; i <= 100; i += 5) {
+          await new Promise(r => setTimeout(r, 60));
+          setProgress(i);
+        }
+        setProcessing(false);
+        onProcess();
+      };
+
+      const mockFiles = ["resume_priya_sharma.pdf","resume_rahul_verma.pdf","resume_sarah_chen.pdf","resume_arjun_nair.pdf","resume_meera_pillai.pdf","resume_david_okonkwo.pdf"];
+
+      return (
+        <div className="page fade-in">
+          <div className="mb-24">
+            <h2 style={{ fontFamily: 'DM Serif Display', fontSize: 28, marginBottom: 6 }}>New Screening Pipeline</h2>
+            <p className="text-muted" style={{ fontSize: 14 }}>Upload resumes and define the job description to start AI-powered screening</p>
+          </div>
+
+          <div className="grid-2">
+            <div>
+              <div className="card mb-16">
+                <div className="section-header">
+                  <div className="section-title">Job Description</div>
+                  <span className="tag tag-purple">Required</span>
+                </div>
+                <div className="form-group">
+                  <label className="label">Role & Requirements</label>
+                  <textarea className="input textarea" value={jd} onChange={e => setJd(e.target.value)} rows={12} />
+                </div>
+
+                <div className="grid-2">
+                  <div className="form-group">
+                    <label className="label">Department</label>
+                    <select className="input">
+                      <option>Engineering</option>
+                      <option>Product</option>
+                      <option>Design</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="label">Min Experience</label>
+                    <select className="input">
+                      <option>4+ years</option>
+                      <option>2+ years</option>
+                      <option>6+ years</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="card mb-16">
+                <div className="section-header">
+                  <div className="section-title">Upload Resumes</div>
+                  <span className="tag tag-gray">PDF / DOCX</span>
+                </div>
+
+                <div
+                  className={`upload-zone ${dragOver ? 'drag-over' : ''}`}
+                  onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={e => { e.preventDefault(); setDragOver(false); }}
+                  onClick={() => setFiles(mockFiles)}
+                >
+                  <div className="upload-icon">📄</div>
+                  <div className="upload-title">Drop resumes here or click to browse</div>
+                  <div className="upload-sub">Supports PDF, DOCX · Bulk upload up to 500 files</div>
+                </div>
+
+                {files.length > 0 && (
+                  <div className="mt-16">
+                    <div className="label mb-8">Queued Files ({files.length})</div>
+                    {files.map((f, i) => (
+                      <div key={i} className="explain-item">
+                        <span>📄</span>
+                        <span style={{ fontSize: 13, flex: 1 }}>{f}</span>
+                        <span className="tag tag-green">Ready</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="card">
+                <div className="section-title mb-16">Screening Options</div>
+                {[
+                  ['Anonymized Screening', 'Hide name, gender, age cues', true],
+                  ['Bias Detection', 'Flag potential discrimination patterns', true],
+                  ['Auto-shortlist Top 20%', 'Automatically mark high scorers', false],
+                  ['Generate Interview Qs', 'Create tailored question sets', true],
+                ].map(([label, sub, on]) => (
+                  <div key={label} className="explain-item">
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 500 }}>{label}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{sub}</div>
+                    </div>
+                    <button className={`toggle ${on ? 'on' : ''}`} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {processing ? (
+            <div className="processing-card mt-24">
+              <div className="spinner" style={{ width: 40, height: 40, borderWidth: 3 }} />
+              <div className="processing-title mt-12">Processing {mockFiles.length} resumes...</div>
+              <div className="processing-sub mb-16">Parsing skills, detecting bias, computing match scores</div>
+              <div className="score-bar-bg" style={{ maxWidth: 400, margin: '0 auto', height: 8, borderRadius: 8 }}>
+                <div className="score-bar-fill" style={{ width: progress + '%', background: 'var(--accent)', height: '100%', borderRadius: 8, transition: 'width 0.3s' }} />
+              </div>
+              <div className="mono text-muted mt-8" style={{ fontSize: 12 }}>{progress}% complete</div>
+            </div>
+          ) : (
+            <div className="flex gap-12 mt-24">
+              <button className="btn btn-primary" onClick={handleProcess} style={{ padding: '12px 32px', fontSize: 15 }}>
+                ⚡ Start Screening
+              </button>
+              <button className="btn btn-outline" onClick={onProcess}>
+                Use Demo Data →
+              </button>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ──────────────────────────────────────────────
+    // RESULTS PAGE
+    // ──────────────────────────────────────────────
+    function ResultsPage() {
+      const [candidates, setCandidates] = useState(MOCK_CANDIDATES);
+      const [selected, setSelected] = useState(null);
+      const [filter, setFilter] = useState('all');
+      const [sortBy, setSortBy] = useState('matchScore');
+      const [search, setSearch] = useState('');
+      const [anonymizeAll, setAnonymizeAll] = useState(false);
+
+      const toggleAnonymize = (id) => {
+        setCandidates(prev => prev.map(c => c.id === id ? { ...c, anonymized: !c.anonymized } : c));
+      };
+
+      const toggleAnonymizeAll = () => {
+        const next = !anonymizeAll;
+        setAnonymizeAll(next);
+        setCandidates(prev => prev.map(c => ({ ...c, anonymized: next })));
+      };
+
+      const filtered = candidates
+        .filter(c => filter === 'all' || c.status === filter)
+        .filter(c => !search || c.name.toLowerCase().includes(search.toLowerCase()) || c.role.toLowerCase().includes(search.toLowerCase()))
+        .sort((a, b) => b[sortBy] - a[sortBy]);
+
+      const statusColors = { shortlisted: 'green', review: 'yellow', pending: 'gray', rejected: 'red' };
+
+      return (
+        <div className="page fade-in">
+          <div className="section-header mb-24">
+            <div>
+              <h2 style={{ fontFamily: 'DM Serif Display', fontSize: 28, marginBottom: 4 }}>Screening Results</h2>
+              <p className="text-muted text-sm">{candidates.length} candidates · Senior Full-Stack Developer · FinTech</p>
+            </div>
+            <div className="flex gap-8 items-center">
+              <div className="toggle-wrap">
+                <button className={`toggle ${anonymizeAll ? 'on' : ''}`} onClick={toggleAnonymizeAll} />
+                <span className="text-sm text-muted">Blind Mode</span>
+              </div>
+              <button className="btn btn-outline btn-sm">📥 Export CSV</button>
+              <button className="btn btn-primary btn-sm">📊 Generate Report</button>
+            </div>
+          </div>
+
+          {/* Filters */}
+          <div className="flex gap-8 mb-20 items-center" style={{ flexWrap: 'wrap' }}>
+            <input className="input" style={{ width: 220 }} placeholder="🔍 Search candidates..." value={search} onChange={e => setSearch(e.target.value)} />
+            {['all','shortlisted','review','pending'].map(f => (
+              <button key={f} onClick={() => setFilter(f)} className={`btn ${filter === f ? 'btn-primary' : 'btn-outline'} btn-sm`}>
+                {f.charAt(0).toUpperCase() + f.slice(1)}
+              </button>
+            ))}
+            <select className="input" style={{ width: 160 }} value={sortBy} onChange={e => setSortBy(e.target.value)}>
+              <option value="matchScore">Sort: Match Score</option>
+              <option value="technicalScore">Sort: Technical</option>
+              <option value="experienceScore">Sort: Experience</option>
+            </select>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+            {filtered.map((c, i) => (
+              <div key={c.id} className={`candidate-card`} onClick={() => setSelected(c)}>
+                <div className="candidate-rank">#{i+1}</div>
+                <div className="flex items-center gap-12 mb-12">
+                  <div className="candidate-avatar" style={{ background: c.color + '22', color: c.color }}>
+                    {c.anonymized ? '??' : c.initials}
+                  </div>
+                  <div>
+                    <div className="candidate-name">{c.anonymized ? `Candidate #${c.id}` : c.name}</div>
+                    <div className="candidate-role">{c.role}</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-12 mb-16">
+                  <div>
+                    <div className="candidate-score-big" style={{ color: c.matchScore >= 90 ? '#43e97b' : c.matchScore >= 75 ? '#6c63ff' : '#ffd166' }}>
+                      {c.matchScore}
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Match Score</div>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <ScoreBar label="Technical" value={c.technicalScore} color="#43e97b" />
+                    <ScoreBar label="Experience" value={c.experienceScore} color="#ffd166" />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className={`tag tag-${statusColors[c.status]}`}>{c.status}</span>
+                  <div className="flex gap-4">
+                    {c.biasFlags.length > 0 && (
+                      <span className="tag tag-red" style={{ fontSize: 10 }}>
+                        {c.biasFlags.filter(f => f.type === 'high').length > 0 ? '⚠️' : '🔶'} {c.biasFlags.length} flag{c.biasFlags.length > 1 ? 's' : ''}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {selected && (
+            <CandidateModal
+              candidate={selected}
+              onClose={() => setSelected(null)}
+              onAnonymize={toggleAnonymize}
+            />
+          )}
+        </div>
+      );
+    }
+
+    // ──────────────────────────────────────────────
+    // BIAS ANALYTICS PAGE
+    // ──────────────────────────────────────────────
+    function BiasPage() {
+      const totalFlags = MOCK_CANDIDATES.reduce((a, c) => a + c.biasFlags.length, 0);
+      const highFlags = MOCK_CANDIDATES.reduce((a, c) => a + c.biasFlags.filter(f => f.type === 'high').length, 0);
+      const genderDist = { Male: 3, Female: 2, Unknown: 1 };
+      const regionDist = { 'South Indian': 3, 'North Indian': 1, 'East Asian': 1, 'African': 1 };
+
+      const BarChartSimple = ({ data, color }) => {
+        const max = Math.max(...Object.values(data));
+        return (
+          <div className="bar-chart">
+            {Object.entries(data).map(([k, v]) => (
+              <div key={k} className="bar-col">
+                <div className="bar-val">{v}</div>
+                <div className="bar" style={{ height: `${(v/max)*60}px`, background: color, opacity: 0.8 }} />
+                <div className="bar-label">{k}</div>
+              </div>
+            ))}
+          </div>
+        );
+      };
+
+      return (
+        <div className="page fade-in">
+          <div className="mb-24">
+            <h2 style={{ fontFamily: 'DM Serif Display', fontSize: 28, marginBottom: 6 }}>Bias & Fairness Analytics</h2>
+            <p className="text-muted text-sm">Monitor and mitigate unconscious bias across your screening pipeline</p>
+          </div>
+
+          <div className="stats-grid">
+            {[
+              { label: 'Bias Flags', value: totalFlags, change: '⚠️ Needs review', cls: 'pink' },
+              { label: 'High Risk', value: highFlags, change: 'Immediate action needed', cls: 'pink' },
+              { label: 'Clean Profiles', value: MOCK_CANDIDATES.filter(c => c.biasFlags.length === 0).length, change: '✓ No flags', cls: 'green' },
+              { label: 'Fairness Score', value: '72%', change: '↑ 8pts vs last batch', cls: 'purple' },
+            ].map(s => (
+              <div key={s.label} className={`stat-card ${s.cls}`}>
+                <div className="stat-label">{s.label}</div>
+                <div className="stat-value">{s.value}</div>
+                <div className="stat-change">{s.change}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid-2 mb-20">
+            <div className="card">
+              <div className="section-title mb-16">Gender Distribution</div>
+              <BarChartSimple data={genderDist} color="#6c63ff" />
+              <hr className="divider" />
+              <p className="text-sm text-muted">⚠️ Consider blind screening to reduce gender-based selection bias.</p>
+            </div>
+            <div className="card">
+              <div className="section-title mb-16">Regional / Ethnic Distribution</div>
+              <BarChartSimple data={regionDist} color="#43e97b" />
+              <hr className="divider" />
+              <p className="text-sm text-muted">✅ Geographic diversity present. Watch for institutional prestige bias.</p>
+            </div>
+          </div>
+
+          <div className="card mb-20">
+            <div className="section-title mb-16">All Active Bias Flags</div>
+            {MOCK_CANDIDATES.filter(c => c.biasFlags.length > 0).map(c => (
+              <div key={c.id} className="mb-16">
+                <div className="flex items-center gap-8 mb-8">
+                  <div className="candidate-avatar" style={{ width: 32, height: 32, fontSize: 12, background: c.color + '22', color: c.color }}>
+                    {c.initials}
+                  </div>
+                  <span style={{ fontWeight: 600, fontSize: 14 }}>{c.name}</span>
+                  <span className="text-muted text-sm">· {c.role}</span>
+                </div>
+                <div className="bias-panel">
+                  {c.biasFlags.map((f, i) => <BiasFlag key={i} flag={f} />)}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="card" style={{ background: 'rgba(108,99,255,0.04)', border: '1px solid rgba(108,99,255,0.2)' }}>
+            <div className="section-title mb-12">Recommendations to Improve Fairness</div>
+            {[
+              ["🔒", "Enable blind screening", "Hide name, photo, age, and gender cues for all initial scoring rounds."],
+              ["📍", "Remove location penalties", "Don't penalize candidates from Tier-2 cities or international universities."],
+              ["⏸️", "Re-evaluate career gaps", "Career gaps (especially 2019–2022) may reflect caregiving, not disengagement."],
+              ["🌍", "Institution-neutral scoring", "Weight skills and demonstrated output over university prestige."],
+              ["🔄", "Calibrate quarterly", "Run bias audits every screening cycle using these fairness metrics."],
+            ].map(([icon, title, desc]) => (
+              <div key={title} className="explain-item">
+                <span className="explain-icon">{icon}</span>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600 }}>{title}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // ──────────────────────────────────────────────
+    // DASHBOARD PAGE
+    // ──────────────────────────────────────────────
+    function DashboardPage({ onNavigate }) {
+      return (
+        <div className="page fade-in">
+          <div className="mb-24">
+            <h2 style={{ fontFamily: 'DM Serif Display', fontSize: 28, marginBottom: 6 }}>HR Dashboard</h2>
+            <p className="text-muted text-sm">Overview of all active pipelines · March 2026</p>
+          </div>
+
+          <div className="stats-grid">
+            {[
+              { label: 'Total Screened', value: '1,284', change: '↑ 23% this month', cls: 'purple' },
+              { label: 'Shortlisted', value: '142', change: '↑ 11.1% rate', cls: 'green' },
+              { label: 'Avg Match Score', value: '76%', change: '↑ 4pts vs last month', cls: 'yellow' },
+              { label: 'Bias Flags', value: '48', change: '↓ 12% reduction', cls: 'pink' },
+            ].map(s => (
+              <div key={s.label} className={`stat-card ${s.cls}`}>
+                <div className="stat-label">{s.label}</div>
+                <div className="stat-value">{s.value}</div>
+                <div className="stat-change up">{s.change}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid-2 mb-20">
+            <div className="card">
+              <div className="section-title mb-16">Active Pipelines</div>
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Role</th>
+                    <th>Candidates</th>
+                    <th>Status</th>
+                    <th>Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ['Senior Full-Stack Dev', 6, 'active', '82%'],
+                    ['Product Manager', 14, 'active', '79%'],
+                    ['ML Engineer', 9, 'review', '88%'],
+                    ['UX Designer', 21, 'closed', '74%'],
+                  ].map(([role, n, status, score]) => (
+                    <tr key={role}>
+                      <td style={{ fontWeight: 500 }}>{role}</td>
+                      <td className="mono">{n}</td>
+                      <td><span className={`tag tag-${status === 'active' ? 'green' : status === 'review' ? 'yellow' : 'gray'}`}>{status}</span></td>
+                      <td className="mono" style={{ color: 'var(--accent)' }}>{score}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="card">
+              <div className="section-title mb-16">Top Candidates (All Pipelines)</div>
+              {MOCK_CANDIDATES.slice(0, 4).sort((a,b) => b.matchScore - a.matchScore).map(c => (
+                <div key={c.id} className="flex items-center gap-12 mb-12">
+                  <div className="candidate-avatar" style={{ width: 36, height: 36, fontSize: 13, background: c.color + '22', color: c.color }}>
+                    {c.initials}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>{c.name}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{c.role}</div>
+                  </div>
+                  <div className="mono" style={{ color: c.matchScore >= 90 ? 'var(--success)' : 'var(--accent)', fontWeight: 700 }}>
+                    {c.matchScore}%
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid-2">
+            <div className="card" style={{ background: 'rgba(255,71,87,0.04)', border: '1px solid rgba(255,71,87,0.15)' }}>
+              <div className="section-title mb-12">Fairness Metrics</div>
+              <ScoreBar label="Gender Fairness" value={78} color="#ff6584" />
+              <ScoreBar label="Geographic Fairness" value={65} color="#ffd166" />
+              <ScoreBar label="Institution Neutrality" value={72} color="#a29bfe" />
+              <ScoreBar label="Overall Fairness Score" value={72} color="#6c63ff" />
+              <button className="btn btn-sm btn-outline mt-12 w-full" onClick={() => onNavigate('bias')}>
+                View Full Bias Report →
+              </button>
+            </div>
+
+            <div className="card">
+              <div className="section-title mb-12">Recent Activity</div>
+              {[
+                ['🆕', '6 new resumes screened', 'Senior Full-Stack · 2m ago'],
+                ['⚠️', '2 high-risk bias flags', 'Needs review · 5m ago'],
+                ['✅', 'Sarah Chen shortlisted', 'Match: 96% · 8m ago'],
+                ['📊', 'Bias report generated', 'March batch · 1hr ago'],
+                ['📧', 'Interview invites sent', '3 candidates · 2hr ago'],
+              ].map(([icon, title, sub]) => (
+                <div key={title} className="explain-item">
+                  <span className="explain-icon">{icon}</span>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 500 }}>{title}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{sub}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ──────────────────────────────────────────────
+    // REPORTS PAGE
+    // ──────────────────────────────────────────────
+    function ReportsPage() {
+      return (
+        <div className="page fade-in">
+          <div className="mb-24">
+            <h2 style={{ fontFamily: 'DM Serif Display', fontSize: 28, marginBottom: 6 }}>Reports & Export</h2>
+            <p className="text-muted text-sm">Generate, download, and share screening reports</p>
+          </div>
+
+          <div className="grid-2 mb-20">
+            {[
+              { icon: '📊', title: 'Full Screening Report', desc: 'All candidates with scores, rankings, and AI analysis', format: 'PDF · 12 pages', color: '#6c63ff' },
+              { icon: '⚖️', title: 'Bias Audit Report', desc: 'Fairness metrics, flag analysis, recommendations', format: 'PDF · 8 pages', color: '#ff6584' },
+              { icon: '📋', title: 'Candidate Rankings', desc: 'Ranked shortlist with match scores and skill matrix', format: 'CSV / Excel', color: '#43e97b' },
+              { icon: '🎯', title: 'Interview Prep Kit', desc: 'Tailored questions for each shortlisted candidate', format: 'PDF per candidate', color: '#ffd166' },
+            ].map(r => (
+              <div key={r.title} className="card" style={{ border: `1px solid ${r.color}33` }}>
+                <div className="flex items-center gap-12 mb-12">
+                  <div style={{ fontSize: 32 }}>{r.icon}</div>
+                  <div>
+                    <div style={{ fontWeight: 600, marginBottom: 3 }}>{r.title}</div>
+                    <div className="text-muted text-sm">{r.desc}</div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="tag tag-gray">{r.format}</span>
+                  <button className="btn btn-sm" style={{ background: r.color + '22', color: r.color, border: `1px solid ${r.color}44` }}>
+                    📥 Generate
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="card">
+            <div className="section-title mb-16">Screening Summary · Senior Full-Stack Developer</div>
+            <table className="table">
+              <thead>
+                <tr><th>Candidate</th><th>Match</th><th>Technical</th><th>Experience</th><th>Bias Flags</th><th>Status</th><th>Action</th></tr>
+              </thead>
+              <tbody>
+                {MOCK_CANDIDATES.sort((a,b) => b.matchScore - a.matchScore).map(c => (
+                  <tr key={c.id}>
+                    <td>
+                      <div className="flex items-center gap-8">
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: c.color + '22', color: c.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>{c.initials}</div>
+                        <div>
+                          <div style={{ fontWeight: 500, fontSize: 13 }}>{c.name}</div>
+                          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{c.experience}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="mono" style={{ color: c.matchScore >= 90 ? 'var(--success)' : 'var(--accent)' }}>{c.matchScore}%</td>
+                    <td className="mono">{c.technicalScore}%</td>
+                    <td className="mono">{c.experienceScore}%</td>
+                    <td>
+                      {c.biasFlags.length === 0
+                        ? <span className="tag tag-green">None</span>
+                        : <span className={`tag tag-${c.biasFlags.some(f => f.type === 'high') ? 'red' : 'yellow'}`}>{c.biasFlags.length}</span>
+                      }
+                    </td>
+                    <td><span className={`tag tag-${c.status === 'shortlisted' ? 'green' : c.status === 'review' ? 'yellow' : 'gray'}`}>{c.status}</span></td>
+                    <td>
+                      <button className="btn btn-outline btn-sm">View</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
+
+    // ──────────────────────────────────────────────
+    // ROOT APP
+    // ──────────────────────────────────────────────
+    function App() {
+      const [page, setPage] = useState('dashboard');
+      const [hasData, setHasData] = useState(true);
+
+      const navItems = [
+        { id: 'dashboard', icon: '📊', label: 'Dashboard' },
+        { id: 'upload', icon: '⬆️', label: 'New Pipeline' },
+        { id: 'results', icon: '👥', label: 'Candidates', badge: '6' },
+        { id: 'bias', icon: '⚖️', label: 'Bias Analysis' },
+        { id: 'reports', icon: '📋', label: 'Reports' },
+      ];
+
+      const pageTitles = {
+        dashboard: 'RecruitIQ',
+        upload: 'New Pipeline',
+        results: 'Candidates',
+        bias: 'Bias Analysis',
+        reports: 'Reports',
+      };
+
+      return (
+        <div className="app">
+          <aside className="sidebar">
+            <div className="logo">
+              <div className="logo-text">RecruitIQ</div>
+              <div className="logo-sub">PS-14 · HR Intelligence</div>
+            </div>
+            <nav className="nav">
+              {navItems.map(item => (
+                <button key={item.id} className={`nav-item ${page === item.id ? 'active' : ''}`} onClick={() => setPage(item.id)}>
+                  <span className="icon">{item.icon}</span>
+                  {item.label}
+                  {item.badge && <span className="nav-badge">{item.badge}</span>}
+                </button>
+              ))}
+            </nav>
+
+            <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border)' }}>
+              <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '1px' }}>Current Pipeline</div>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>Sr. Full-Stack Dev</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>6 candidates · FinTech</div>
+            </div>
+          </aside>
+
+          <main className="main">
+            <div className="topbar">
+              <div className="page-title">{pageTitles[page]}</div>
+              <div className="topbar-actions">
+                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>AI-Powered · Bias-Aware</span>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700 }}>
+                  HR
+                </div>
+              </div>
+            </div>
+
+            {page === 'dashboard' && <DashboardPage onNavigate={setPage} />}
+            {page === 'upload' && <UploadPage onProcess={() => { setPage('results'); }} />}
+            {page === 'results' && <ResultsPage />}
+            {page === 'bias' && <BiasPage />}
+            {page === 'reports' && <ReportsPage />}
+          </main>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
